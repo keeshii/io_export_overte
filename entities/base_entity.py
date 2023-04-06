@@ -51,7 +51,7 @@ class BaseEntity(object):
         return dimensions
 
     def get_rotation(self):
-        r = self.obj.rotation_euler
+        r = self.obj.matrix_world.to_euler('XYZ')
         cr = cos(r[0] * 0.5)
         sr = sin(r[0] * 0.5)
         cp = cos(r[2] * 0.5)

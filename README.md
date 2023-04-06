@@ -44,7 +44,7 @@ Objects with following names will be mapped to the shape entities:
 - Cylinder -> Cylinder Entity
 - Cone -> Cone Entity
 
-Shapes will inherit the color of the first material assigned to the objects.
+Shapes will inherit the color of the first material assigned to the object.
 
 ### Models
 
@@ -58,6 +58,8 @@ If the scene contains an object with the name that matches the file name (withou
 
 In the world properties there is a button that allows you to refresh the list of models found on the disk.
 
+This type of object will only be considered if the name does not match any other type.
+
 ### Images/Texts/Web
 
 In order to insert an image/text/web entity, create a Plane object and rename it.
@@ -66,13 +68,11 @@ In order to insert an image/text/web entity, create a Plane object and rename it
 - Text -> Text Entity
 - Web -> Web Entity
 
-Those entites are flat and their Z dimention will be always zero. The background color of the Text Entity will be taken from the object's material.
-
-This type of object will only be considered if the name does not match any other type.
+Those entites are flat and their Z dimension will be always zero. The background color of the Text Entity will be taken from the object's material.
 
 ### Light
 
-Add "Point" or "Spot" light to the scene and it will be exported as the light entity. Color of the light will be used as the color of the light. Othere parameters are taken from the object properties.
+Add "Point" or "Spot" light to the scene and it will be exported as the light entity. Color of the light will be taken from light properties.
 
 ### Material
 
