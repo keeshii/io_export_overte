@@ -51,7 +51,6 @@ class ModelEntity(BaseEntity):
 
         if self.obj.overte.textures != '':
             model["textures"] = self.obj.overte.textures
-            model["blendshapeCoefficients"] = self.obj.overte.original_texture
 
         if self.obj.overte.group_culled != False:
             model["groupCulled"] = self.obj.overte.group_culled
@@ -101,8 +100,6 @@ class ModelEntity(BaseEntity):
 
         row = box.row()
         row.prop(self.obj.overte, "textures")
-        row = box.row()
-        row.prop(self.obj.overte, "original_texture")
         row = box.row()
         row.prop(self.obj.overte, "group_culled")
 

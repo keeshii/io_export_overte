@@ -1,5 +1,5 @@
 from mathutils import Vector
-from math import radians, cos, sin
+from math import radians
 from ..export_params import ExportParams
 import uuid
 
@@ -7,20 +7,23 @@ class BaseEntity(object):
 
     def __init__(self, obj):
         self.obj = obj
+        self.uuid = None
 
     def get_uuid(self):
-        return "{" + str(uuid.uuid4()) + "}"
+        if (self.uuid is None):
+            self.uuid = "{" + str(uuid.uuid4()) + "}"
+        return self.uuid
 
-    def get_absolute_position(self, obj):
+    def get_absolute_position(self):
         # find center of the object by calculating an avarage of its bounding-box
-        if obj.type == 'MESH':
-            bbox_center = 0.125 * sum((Vector(b) for b in obj.bound_box), Vector())
-            return obj.matrix_world @ bbox_center
+        if self.obj.type == 'MESH':
+            bbox_center = 0.125 * sum((Vector(b) for b in self.obj.bound_box), Vector())
+            return self.obj.matrix_world @ bbox_center
 
-        return obj.matrix_world.decompose()[0]
+        return self.obj.matrix_world.decompose()[0]
 
     def get_position(self):
-        absolute_position = self.get_absolute_position(self.obj)
+        absolute_position = self.get_absolute_position()
         position = {
             "x": absolute_position[0] * ExportParams.world_scale,
             "y": absolute_position[2] * ExportParams.world_scale,
@@ -29,10 +32,10 @@ class BaseEntity(object):
         return position
 
     def get_relative_postion(self, parent):
-        parent_location = self.get_absolute_position(parent)
-        child_location = self.get_absolute_position(self.obj)
-        loc, rot, scale = parent.matrix_world.decompose()
-        location = rot.inverted().to_matrix().to_4x4() @ (child_location - parent_location)
+        parent_location = parent.get_absolute_position()
+        child_location = self.get_absolute_position()
+        parent_rot = parent.get_absolute_rotation()
+        location = parent_rot.to_matrix().inverted().to_4x4() @ (child_location - parent_location)
 
         position = {
             "x": location[0] * ExportParams.world_scale,
@@ -50,22 +53,24 @@ class BaseEntity(object):
         }
         return dimensions
 
-    def get_rotation(self):
-        r = self.obj.matrix_world.to_euler('XYZ')
-        cr = cos(r[0] * 0.5)
-        sr = sin(r[0] * 0.5)
-        cp = cos(r[2] * 0.5)
-        sp = sin(r[2] * 0.5)
-        cy = cos(-r[1] * 0.5)
-        sy = sin(-r[1] * 0.5)
-
-        rotation = {
-            "x": sr * cp * cy - cr * sp * sy,
-            "y": cr * sp * cy + sr * cp * sy,
-            "z": cr * cp * sy - sr * sp * cy,
-            "w": cr * cp * cy + sr * sp * sy
-        }
+    def get_rotation_quat(self, r):
+        q = r.to_quaternion()
+        rotation = { "x": q[1], "y": q[3], "z": -q[2], "w": q[0] }
         return rotation
+
+    def get_absolute_rotation(self):
+        return self.obj.matrix_world.to_euler('XYZ')
+
+    def get_relative_rotation(self, parent):
+        parent_r = parent.get_absolute_rotation()
+        child_r = self.get_absolute_rotation()
+        r = (parent_r.to_matrix().inverted().to_4x4() @ child_r.to_matrix().to_4x4()).to_euler('XYZ')
+        rot = self.get_rotation_quat(r)
+        return self.get_rotation_quat(r)
+
+    def get_rotation(self):
+        r = self.get_absolute_rotation()
+        return self.get_rotation_quat(r)
 
     def get_query_aa_cube(self):
         if self.obj.type == 'MESH':

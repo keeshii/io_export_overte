@@ -50,8 +50,8 @@ class MaterialEntity(BaseEntity):
 
         materialEntity = {
             "name": parentEntity["name"] + '.' + entity["name"],
-            "position": parentEntity["position"],
-            "rotation": parentEntity["rotation"],
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 },
             "queryAACube": parentEntity["queryAACube"],
             "parentID": parentEntity["id"]
         }

@@ -1,4 +1,5 @@
-from math import radians, cos, sin
+from math import radians
+from mathutils import Matrix
 from ..export_params import ExportParams
 from .base_entity import BaseEntity
 
@@ -16,19 +17,7 @@ class FlatBaseEntity(BaseEntity):
         }
         return dimensions
 
-    def get_rotation(self):
-        r = self.obj.matrix_world.to_euler('XYZ')
-        cr = cos((r[0] - radians(90)) * 0.5)
-        sr = sin((r[0] - radians(90)) * 0.5)
-        cp = cos(r[2] * 0.5)
-        sp = sin(r[2] * 0.5)
-        cy = cos(-r[1] * 0.5)
-        sy = sin(-r[1] * 0.5)
-
-        rotation = {
-            "x": sr * cp * cy - cr * sp * sy,
-            "y": cr * sp * cy + sr * cp * sy,
-            "z": cr * cp * sy - sr * sp * cy,
-            "w": cr * cp * cy + sr * sp * sy
-        }
-        return rotation
+    def get_absolute_rotation(self):
+        rot = self.obj.matrix_world.to_euler('XYZ')
+        r = rot.to_matrix().to_4x4() @ Matrix.Rotation(radians(-90), 4, 'X').to_4x4()
+        return r.to_euler('XYZ')

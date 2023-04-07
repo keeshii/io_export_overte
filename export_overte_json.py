@@ -55,12 +55,13 @@ class ExportOverteJson(Operator, ExportHelper):
             if entity:
                 entity.generate(os.path.dirname(self.filepath))
                 material = entity.get_material_entity()
-                position = entity.get_relative_postion(obj)
-                entity = { **entity.export(), **{ "position": position } }
-                entity["parentID"] = parent["id"]
-                entities.append(entity)
+                position = entity.get_relative_postion(parent)
+                rotation = entity.get_relative_rotation(parent)
+                entity_json = { **entity.export(), **{ "position": position }, **{ "rotation": rotation } }
+                entity_json["parentID"] = parent.get_uuid()
+                entities.append(entity_json)
                 if material:
-                    material = material.export(entity)
+                    material = material.export(entity_json)
                     entities.append(material)
 
                 self.process_object(child, entities, entity)
@@ -78,15 +79,15 @@ class ExportOverteJson(Operator, ExportHelper):
             if entity:
                 entity.generate(os.path.dirname(self.filepath))
                 material = entity.get_material_entity()
-                entity = entity.export()
+                entity_json = entity.export()
                 if zone:
-                    entity["position"]["x"] -= zone["position"]["x"]
-                    entity["position"]["y"] -= zone["position"]["y"]
-                    entity["position"]["z"] -= zone["position"]["z"]
-                    entity["parentID"] = zone["id"]
-                entities.append(entity)
+                    entity_json["position"]["x"] -= zone["position"]["x"]
+                    entity_json["position"]["y"] -= zone["position"]["y"]
+                    entity_json["position"]["z"] -= zone["position"]["z"]
+                    entity_json["parentID"] = zone["id"]
+                entities.append(entity_json)
                 if material:
-                    material = material.export(entity)
+                    material = material.export(entity_json)
                     entities.append(material)
 
                 self.process_object(obj, entities, entity)
