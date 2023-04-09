@@ -44,7 +44,7 @@ class BaseEntity(object):
         }
         return position
 
-    def get_dimentsions(self):
+    def get_dimensions(self):
         d = self.obj.dimensions
         dimensions = {
             "x": d[0] * ExportParams.world_scale,
@@ -65,7 +65,6 @@ class BaseEntity(object):
         parent_r = parent.get_absolute_rotation()
         child_r = self.get_absolute_rotation()
         r = (parent_r.to_matrix().inverted().to_4x4() @ child_r.to_matrix().to_4x4()).to_euler('XYZ')
-        rot = self.get_rotation_quat(r)
         return self.get_rotation_quat(r)
 
     def get_rotation(self):
@@ -101,7 +100,7 @@ class BaseEntity(object):
                 "scale": scale
             }
         else:
-            position = self.get_absolute_position(self.obj)
+            position = self.get_absolute_position()
             scale = max(self.obj.scale) * ExportParams.world_scale * 1.5
             query_aa_cube = {
                 "x": position[0] * ExportParams.world_scale - (scale / 2),

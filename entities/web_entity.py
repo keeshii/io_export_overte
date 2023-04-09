@@ -15,7 +15,7 @@ class WebEntity(FlatBaseEntity):
 
         webEntity = {
             "position": self.get_position(),
-            "dimensions": self.get_dimentsions(),
+            "dimensions": self.get_dimensions(),
             "rotation": self.get_rotation(),
             "queryAACube": self.get_query_aa_cube(),
             "sourceUrl": ExportParams.get_url(self.obj.overte.web_source_url),

@@ -25,7 +25,7 @@ class TextEntity(FlatBaseEntity):
 
         textEntity = {
             "position": self.get_position(),
-            "dimensions": self.get_dimentsions(),
+            "dimensions": self.get_dimensions(),
             "rotation": self.get_rotation(),
             "queryAACube": self.get_query_aa_cube(),
             "text": self.obj.overte.text_value,

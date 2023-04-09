@@ -7,7 +7,7 @@ class LightEntity(BaseEntity):
         super().__init__(obj)
         self.light = light
 
-    def get_dimentsions(self):
+    def get_dimensions(self):
         scale = self.obj.scale
         # Lights have a fixed dimensions of 4x4x4
         dimensions = {
@@ -26,7 +26,7 @@ class LightEntity(BaseEntity):
 
         lightEntity = {
             "position": self.get_position(),
-            "dimensions": self.get_dimentsions(),
+            "dimensions": self.get_dimensions(),
             "rotation": self.get_rotation(),
             "queryAACube": self.get_query_aa_cube(),
             "intensity": self.obj.overte.light_intensity,

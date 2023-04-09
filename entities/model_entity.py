@@ -63,7 +63,7 @@ class ModelEntity(BaseEntity):
 
         modelEntity = {
             "position": self.get_position(),
-            "dimensions": self.get_dimentsions(),
+            "dimensions": self.get_dimensions(),
             "rotation": self.get_rotation(),
             "queryAACube": self.get_query_aa_cube(),
             "modelURL": ExportParams.get_url(self.modelUrl)

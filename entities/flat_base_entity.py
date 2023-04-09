@@ -8,7 +8,7 @@ class FlatBaseEntity(BaseEntity):
     def __init__(self, obj):
         super().__init__(obj)
 
-    def get_dimentsions(self):
+    def get_dimensions(self):
         d = self.obj.dimensions
         dimensions = {
             "x": d[0] * ExportParams.world_scale,
