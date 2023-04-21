@@ -16,7 +16,7 @@ class CustomModelEntity(ModelEntity):
         os.makedirs(output_dir + '/' + ExportParams.models_path, exist_ok=True)
         filepath = output_dir + '/' + self.modelUrl
 
-        if bpy.context.object.mode != 'OBJECT':
+        if not bpy.context.object is None and bpy.context.object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode = 'OBJECT')
 
         bpy.ops.object.select_all(action='DESELECT')
