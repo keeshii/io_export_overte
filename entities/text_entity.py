@@ -41,7 +41,7 @@ class TextEntity(FlatBaseEntity):
             textEntity["lineHeight"] = self.obj.overte.text_line_height
 
         if self.obj.overte.text_font != "Roboto":
-            textEntity["inputMode"] = self.obj.overte.text_font
+            textEntity["font"] = self.obj.overte.text_font
 
         if self.obj.overte.text_effect != "none":
             textEntity["textEffect"] = self.obj.overte.text_effect
