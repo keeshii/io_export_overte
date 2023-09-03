@@ -61,6 +61,7 @@ class ExportOverteJson(Operator, ExportHelper):
                 entity_json["parentID"] = parent.get_uuid()
                 entities.append(entity_json)
                 if material:
+                    material.generate(os.path.dirname(self.filepath))
                     material = material.export(entity_json)
                     entities.append(material)
 
@@ -87,6 +88,7 @@ class ExportOverteJson(Operator, ExportHelper):
                     entity_json["parentID"] = zone["id"]
                 entities.append(entity_json)
                 if material:
+                    material.generate(os.path.dirname(self.filepath))
                     material = material.export(entity_json)
                     entities.append(material)
 
