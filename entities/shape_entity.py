@@ -13,8 +13,7 @@ class ShapeBaseEntity(BaseEntity):
         try:
             obj = self.obj
             material = obj.material_slots[0].material
-            if material.overte.material_url != '':
-                return MaterialEntity(material)
+            return MaterialEntity(material)
         except:
             return None
 
