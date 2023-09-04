@@ -114,6 +114,9 @@ class ExportOverteJson(Operator, ExportHelper):
         ExportParams.domain_url = world.overte.domain_url
         ExportParams.world_scale = world.overte.world_scale
         ExportParams.models_path = world.overte.models_path
+        ExportParams.textures_path = world.overte.textures_path
+        ExportParams.materials_dict = {}
+        ExportParams.models_dict = {}
 
         entities = []
         self.process_collection(bpy.context.scene.collection, entities, None)

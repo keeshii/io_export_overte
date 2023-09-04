@@ -1,6 +1,7 @@
 from ..asset_loader import AssetLoader
 from ..export_params import ExportParams
 from .base_entity import BaseEntity
+from .material_entity import MaterialEntity
 
 class ModelEntity(BaseEntity):
 
@@ -9,6 +10,17 @@ class ModelEntity(BaseEntity):
     def __init__(self, obj):
         super().__init__(obj)
         self.modelUrl = AssetLoader.getOverteModelUrl(self.obj)
+
+    def get_material_entity(self):
+        try:
+            obj = self.obj
+            for slot in obj.material_slots:
+                material = slot.material
+                if material.overte.material_url != '' or material.overte.material_auto_generate:
+                    return MaterialEntity(material)
+            return None
+        except:
+            return None
 
     def get_model(self):
         model = {}

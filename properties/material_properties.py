@@ -17,6 +17,12 @@ class OverteMaterialProperties(OverteCommonProperties):
         default="",
     )
 
+    material_auto_generate: BoolProperty(
+        name="Auto-generate material data",
+        description="Material data will be automatically generated from nodes during export",
+        default=False,
+    )
+
     material_priority: IntProperty(
         name="Priority",
         description="The priority of the material, where a larger number means higher priority. Original materials = 0",

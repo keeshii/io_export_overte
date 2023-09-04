@@ -93,6 +93,8 @@ class OverteWorldPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(obj.overte, "models_path")
         row = layout.row()
+        row.prop(obj.overte, "textures_path")
+        row = layout.row()
         row.prop(obj.overte, "world_scale")
         row = layout.row()
         row.operator("world.overte_refresh_library")

@@ -12,8 +12,11 @@ class ShapeBaseEntity(BaseEntity):
     def get_material_entity(self):
         try:
             obj = self.obj
-            material = obj.material_slots[0].material
-            return MaterialEntity(material)
+            for slot in obj.material_slots:
+                material = slot.material
+                if material.overte.material_url != '' or material.overte.material_auto_generate:
+                    return MaterialEntity(material)
+            return None
         except:
             return None
 

@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Export Overte json files",
     "author": "keeshii",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (3, 2, 0),
     "location": "File > Import-Export",
     "description": "Exports scene to Overte json world file.",

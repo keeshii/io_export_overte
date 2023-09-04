@@ -17,6 +17,12 @@ class OverteWorldProperties(bpy.types.PropertyGroup):
         default="generated/",
     )
 
+    textures_path: StringProperty(
+        name="Textures Path",
+        description="Place where material images will be stored",
+        default="textures/",
+    )
+
     world_scale: FloatProperty(
         name="World scale",
         description="Changes the size of the world during the export process",
