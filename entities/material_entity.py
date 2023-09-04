@@ -14,7 +14,7 @@ class MaterialEntity(BaseEntity):
         os.makedirs(output_dir + '/' + ExportParams.textures_path, exist_ok=True)
         # blender will append ".001" on an object name if it's name clashes with another. We want .png at the end.
         # to combat this, we detect the .001 at the end (any number), then put it inside the name and append .png at the end.
-        filename = re.sub('(\.\w+)(\.\d+)$', '\\2\\1', image.name)
+        filename = re.sub('(\.\w+)(\.\d+)?$', '\\2.png', image.name)
         filepath = output_dir + '/' + ExportParams.textures_path + filename
         file_url = ExportParams.get_url(ExportParams.textures_path + filename)
         image.save_render(filepath)
