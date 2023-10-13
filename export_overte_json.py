@@ -6,7 +6,7 @@ import time
 # ExportHelper is a helper class, defines filename and
 # invoke() function which calls the file selector.
 from bpy_extras.io_utils import ExportHelper
-from bpy.props import StringProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty
 from bpy.types import Operator
 
 from .asset_loader import AssetLoader
@@ -26,6 +26,26 @@ class ExportOverteJson(Operator, ExportHelper):
         default="*.json",
         options={'HIDDEN'},
         maxlen=255,  # Max internal buffer length, longer would be clamped.
+    )
+
+    use_material_references: BoolProperty(
+        name="Enable references in Material Entities",
+        description="One material will use data of an another material entity",
+        default=True,
+    )
+
+    use_fst: BoolProperty(
+        name="Enable FST files",
+        description="Will create FST files instead of material entities for models",
+        default=True,
+    )
+
+    lightmap_brightness: FloatProperty(
+        name="Lightmap brigthness",
+        description="Adjust the brightness of the materials that are using lightmaps",
+        default=0,
+        min=-2.0,
+        max=2.0
     )
 
     # List of operator properties, the attributes will be assigned
@@ -54,16 +74,17 @@ class ExportOverteJson(Operator, ExportHelper):
             entity = EntityFactory.createEntity(child)
             if entity:
                 entity.generate(os.path.dirname(self.filepath))
-                material = entity.get_material_entity()
+                materials = entity.get_material_entities()
                 position = entity.get_relative_postion(parent)
                 rotation = entity.get_relative_rotation(parent)
                 entity_json = { **entity.export(), **{ "position": position }, **{ "rotation": rotation } }
                 entity_json["parentID"] = parent.get_uuid()
                 entities.append(entity_json)
-                if material:
-                    material.generate(os.path.dirname(self.filepath))
-                    material = material.export(entity_json)
-                    entities.append(material)
+                if len(materials) > 0:
+                    for material in materials:
+                        material.generate(os.path.dirname(self.filepath))
+                        material = material.export(entity_json)
+                        entities.append(material)
 
                 self.process_object(child, entities, entity)
 
@@ -79,7 +100,7 @@ class ExportOverteJson(Operator, ExportHelper):
             entity = EntityFactory.createEntity(obj)
             if entity:
                 entity.generate(os.path.dirname(self.filepath))
-                material = entity.get_material_entity()
+                materials = entity.get_material_entities()
                 entity_json = entity.export()
                 if zone:
                     entity_json["position"]["x"] -= zone["position"]["x"]
@@ -87,10 +108,11 @@ class ExportOverteJson(Operator, ExportHelper):
                     entity_json["position"]["z"] -= zone["position"]["z"]
                     entity_json["parentID"] = zone["id"]
                 entities.append(entity_json)
-                if material:
-                    material.generate(os.path.dirname(self.filepath))
-                    material = material.export(entity_json)
-                    entities.append(material)
+                if len(materials) > 0:
+                    for material in materials:
+                        material.generate(os.path.dirname(self.filepath))
+                        material = material.export(entity_json)
+                        entities.append(material)
 
                 self.process_object(obj, entities, entity)
 
@@ -115,6 +137,9 @@ class ExportOverteJson(Operator, ExportHelper):
         ExportParams.world_scale = world.overte.world_scale
         ExportParams.models_path = world.overte.models_path
         ExportParams.textures_path = world.overte.textures_path
+        ExportParams.use_material_references = self.use_material_references
+        ExportParams.use_fst = self.use_fst
+        ExportParams.lightmap_brightness = self.lightmap_brightness
         ExportParams.materials_dict = {}
         ExportParams.models_dict = {}
 

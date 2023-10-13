@@ -4,23 +4,27 @@ import os, re, json
 
 class MaterialEntity(BaseEntity):
 
-    generated_data = ''
+    generated_data = None
 
     def __init__(self, obj):
         super().__init__(obj)
-        self.generated_data = ''
+        self.generated_data = None
 
-    def santitize_image_name(self, image, output_dir):
+    def santitize_image_name(self, image, output_dir, relpath):
         os.makedirs(output_dir + '/' + ExportParams.textures_path, exist_ok=True)
         # blender will append ".001" on an object name if it's name clashes with another. We want .png at the end.
         # to combat this, we detect the .001 at the end (any number), then put it inside the name and append .png at the end.
-        filename = re.sub('(\.\w+)(\.\d+)?$', '\\2.png', image.name)
+        filename = re.sub('(\.\w+)(\.\d+)?$', '\\2', image.name) + '.png'
         filepath = output_dir + '/' + ExportParams.textures_path + filename
         file_url = ExportParams.get_url(ExportParams.textures_path + filename)
+
+        if relpath is not None:
+            file_url = os.path.relpath(filepath, relpath)
+
         image.save_render(filepath)
         return file_url
 
-    def generate(self, output_dir):
+    def generate(self, output_dir, relpath = None):
         mat = self.obj
 
         if mat.overte.material_auto_generate == False:
@@ -69,7 +73,7 @@ class MaterialEntity(BaseEntity):
             return
 
         principled = output.inputs["Surface"].links[0].from_node
-        matdata["materials"][0]["albedo"] = principled.inputs['Base Color'].default_value[:3]
+        matdata["materials"][0]["albedo"] = list(principled.inputs['Base Color'].default_value[:3])
         matdata["materials"][0]["opacity"] = principled.inputs['Alpha'].default_value
         matdata["materials"][0]["metallic"] = principled.inputs['Metallic'].default_value
         matdata["materials"][0]["roughness"] = principled.inputs['Roughness'].default_value
@@ -78,30 +82,31 @@ class MaterialEntity(BaseEntity):
         try: 
             base_color_source = principled.inputs["Base Color"].links[0].from_node
             if base_color_source.type == "TEX_IMAGE":
-                matdata["materials"][0]["albedoMap"] = self.santitize_image_name(base_color_source.image, output_dir)
+                matdata["materials"][0]["albedoMap"] = self.santitize_image_name(base_color_source.image, output_dir, relpath)
+                matdata["materials"][0]["albedo"] = [1, 1, 1]
         except Exception as e:
             print(e)
         
         try: 
             base_color_source = principled.inputs["Alpha"].links[0].from_node
             if base_color_source.type == "TEX_IMAGE":
-                matdata["materials"][0]["opacityMap"] = self.santitize_image_name(base_color_source.image, output_dir)
+                matdata["materials"][0]["opacityMap"] = self.santitize_image_name(base_color_source.image, output_dir, relpath)
         except:
             pass
         
         try: 
             base_color_source = principled.inputs["Emission"].links[0].from_node
             if base_color_source.type == "TEX_IMAGE":
-                matdata["materials"][0]["emissiveMap"] = self.santitize_image_name(base_color_source.image, output_dir)
+                matdata["materials"][0]["emissiveMap"] = self.santitize_image_name(base_color_source.image, output_dir, relpath)
         except:
             pass
         
         try: 
             base_color_source = principled.inputs["Roughness"].links[0].from_node
             if base_color_source.type == "TEX_IMAGE":
-                matdata["materials"][0]["roughnessMap"] = self.santitize_image_name(base_color_source.image, output_dir)
+                matdata["materials"][0]["roughnessMap"] = self.santitize_image_name(base_color_source.image, output_dir, relpath)
             elif base_color_source.type == "INVERT":
-                matdata["materials"][0]["glossMap"] = self.santitize_image_name(base_color_source.links[1].from_node.image, output_dir)
+                matdata["materials"][0]["glossMap"] = self.santitize_image_name(base_color_source.links[1].from_node.image, output_dir, relpath)
         except:
             pass
         
@@ -119,20 +124,20 @@ class MaterialEntity(BaseEntity):
             
             if metallic_color_source:
                 if metallic_color_source.type == "TEX_IMAGE":
-                    matdata["materials"][0]["metallicMap"] = self.santitize_image_name(metallic_color_source.image, output_dir)
+                    matdata["materials"][0]["metallicMap"] = self.santitize_image_name(metallic_color_source.image, output_dir, relpath)
                     specular_color_source = None
             if specular_color_source:
                 if specular_color_source.type == "TEX_IMAGE":
-                    matdata["materials"][0]["specularMap"] = self.santitize_image_name(specular_color_source.image, output_dir)
+                    matdata["materials"][0]["specularMap"] = self.santitize_image_name(specular_color_source.image, output_dir, relpath)
         except:
             pass
         
         try: 
             normal_data_type = principled.inputs["Normal"].links[0].from_node
             if normal_data_type.type == "NORMAL_MAP":
-                matdata["materials"][0]["normalMap"] = self.santitize_image_name(normal_data_type.links[1].from_node.image, output_dir)
+                matdata["materials"][0]["normalMap"] = self.santitize_image_name(normal_data_type.inputs['Color'].links[0].from_node.image, output_dir, relpath)
             elif normal_data_type.type == "BUMP":
-                matdata["materials"][0]["bumpMap"] = self.santitize_image_name(normal_data_type.links[2].from_node.image, output_dir)
+                matdata["materials"][0]["bumpMap"] = self.santitize_image_name(normal_data_type.links[2].from_node.image, output_dir, relpath)
         except:
             pass
             
@@ -146,9 +151,16 @@ class MaterialEntity(BaseEntity):
                                 lightmapped_image_node = n.inputs["Color"].links[0].from_node
                                 break
         if lightmapped_image_node:
-            matdata["materials"][0]["lightMap"] = self.santitize_image_name(lightmapped_image_node.image, output_dir)
+            matdata["materials"][0]["lightMap"] = self.santitize_image_name(lightmapped_image_node.image, output_dir, relpath)
 
-        self.generated_data = json.dumps(matdata)
+            # Fix for lightmaps' albedo.
+            # When lightmap is set together with texture image, everything is 2x times darker
+            if ExportParams.lightmap_brightness != 0:
+                matdata["materials"][0]["albedo"][0] += ExportParams.lightmap_brightness
+                matdata["materials"][0]["albedo"][1] += ExportParams.lightmap_brightness
+                matdata["materials"][0]["albedo"][2] += ExportParams.lightmap_brightness
+
+        self.generated_data = matdata
 
     def get_material(self):
         material = {}
@@ -164,9 +176,9 @@ class MaterialEntity(BaseEntity):
         elif self.obj.overte.material_url != '':
             materialUrl = ExportParams.get_url(self.obj.overte.material_url)
 
-        if self.generated_data != '':
+        if self.generated_data is not None:
             materialUrl = 'materialData'
-            materialData = self.generated_data
+            materialData = json.dumps(self.generated_data)
 
         if materialUrl != '':
             material["materialURL"] = materialUrl
@@ -205,7 +217,7 @@ class MaterialEntity(BaseEntity):
         entity = super().export("Material")
         material = self.get_material()
 
-        if self.obj.name not in ExportParams.materials_dict:
+        if ExportParams.use_material_references and self.obj.name not in ExportParams.materials_dict:
             ExportParams.materials_dict[self.obj.name] = entity['id']
 
         materialEntity = {

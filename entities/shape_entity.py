@@ -9,16 +9,16 @@ class ShapeBaseEntity(BaseEntity):
         self.entityType = entityType
         self.shapeType = shapeType
 
-    def get_material_entity(self):
+    def get_material_entities(self):
         try:
             obj = self.obj
             for slot in obj.material_slots:
                 material = slot.material
                 if material.overte.material_url != '' or material.overte.material_auto_generate:
-                    return MaterialEntity(material)
-            return None
+                    return [MaterialEntity(material)]
+            return []
         except:
-            return None
+            return []
 
     def export(self):
         entity = super().export(self.entityType)

@@ -4,6 +4,9 @@ class ExportParams(object):
     domain_url = ''
     models_path  = 'generated/'
     textures_path = 'textures/'
+    use_material_references = True
+    use_fst = True
+    lightmap_brightness = 0
 
     materials_dict = {}
     models_dict = {}

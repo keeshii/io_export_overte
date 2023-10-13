@@ -277,8 +277,8 @@ class BaseEntity(object):
         }
         return color
 
-    def get_material_entity(self):
-        return None
+    def get_material_entities(self):
+        return []
 
     def get_material_color(self):
         try:
