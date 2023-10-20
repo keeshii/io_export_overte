@@ -112,10 +112,16 @@ class BaseEntity(object):
 
     def get_scripts(self):
         scripts = { }
+        # Assume that if script starts with '(', it's inline script,
+        # and we shouldn't append Domain URL to inline scripts.
         if self.obj.overte.script_url:
-            scripts["script"] = ExportParams.get_url(self.obj.overte.script_url)
+            scripts["script"] = (self.obj.overte.script_url
+                if self.obj.overte.script_url.startswith('(')
+                else ExportParams.get_url(self.obj.overte.script_url))
         if self.obj.overte.server_script_url:
-            scripts["serverScripts"] = ExportParams.get_url(self.obj.overte.server_script_url)
+            scripts["serverScripts"] = (self.obj.overte.server_script_url
+                if self.obj.overte.server_script_url.startswith('(')
+                else ExportParams.get_url(self.obj.overte.server_script_url))
         if self.obj.overte.user_data:
             scripts["userData"] = self.obj.overte.user_data
         return scripts
@@ -151,9 +157,6 @@ class BaseEntity(object):
 
             if self.obj.overte.collides_sound:
                 collisions["collisionSoundURL"] = ExportParams.get_url(self.obj.overte.collides_sound)
-
-        if self.obj.overte.server_script_url:
-            collisions["serverScripts"] = ExportParams.get_url(self.obj.overte.server_script_url)
 
         if self.obj.overte.is_dynamic == True:
             collisions["dynamic"] = True
