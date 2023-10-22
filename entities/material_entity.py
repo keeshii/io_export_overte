@@ -12,16 +12,45 @@ class MaterialEntity(BaseEntity):
 
     def santitize_image_name(self, image, output_dir, relpath):
         os.makedirs(output_dir + '/' + ExportParams.textures_path, exist_ok=True)
+
+        file_format = image.file_format
+        extension = '.png'
+
+        if file_format == 'BMP':
+            extension = '.bmp'
+        elif file_format == 'IRIS':
+            extension = '.sgi'
+        elif file_format == 'PNG':
+            extension = '.png'
+        elif file_format == 'JPEG':
+            extension = '.jpg'
+        elif file_format == 'JPEG2000':
+            extension = '.jp2'
+        elif file_format == 'TARGA' or file_format == 'TARGA_RAW':
+            extension = '.tga'
+        elif file_format == 'OPEN_EXR':
+            extension = '.exr'
+        elif file_format == 'TIFF':
+            extension = '.tif'
+        elif file_format == 'HDR':
+            extension = '.hdr'
+        elif file_format == 'WEBP':
+            extension = '.webp'
+
         # blender will append ".001" on an object name if it's name clashes with another. We want .png at the end.
         # to combat this, we detect the .001 at the end (any number), then put it inside the name and append .png at the end.
-        filename = re.sub('(\.\w+)(\.\d+)?$', '\\2', image.name) + '.png'
+        filename = re.sub('(\.\w+)(\.\d+)?$', '\\2', image.name) + extension
         filepath = output_dir + '/' + ExportParams.textures_path + filename
         file_url = ExportParams.get_url(ExportParams.textures_path + filename)
 
         if relpath is not None:
             file_url = os.path.relpath(filepath, relpath)
 
-        image.save_render(filepath)
+        originalpath = image.filepath_raw
+        image.filepath_raw = filepath
+        image.save()
+        image.filepath_raw = originalpath
+
         return file_url
 
     def generate(self, output_dir, relpath = None):
