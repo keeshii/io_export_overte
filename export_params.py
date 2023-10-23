@@ -3,7 +3,7 @@ class ExportParams(object):
     current_time = 0
     domain_url = ''
     models_path  = 'generated/'
-    textures_path = 'textures/'
+    textures_path = 'generated/textures/'
     use_material_references = True
     use_fst = True
     lightmap_brightness = 0
