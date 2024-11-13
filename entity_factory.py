@@ -14,9 +14,10 @@ class EntityFactory(object):
         entity = None
 
         if obj.type == 'LIGHT':
-            light = bpy.data.lights[obj.name]
-            if light.type == 'POINT' or light.type == 'SPOT':
-                entity = LightEntity(obj, light)
+            if (EntityFactory.matchName(obj, "Light") or EntityFactory.matchName(obj, "Point") or EntityFactory.matchName(obj, "Spot")):
+              light = obj.data
+              if light.type == 'POINT' or light.type == 'SPOT':
+                  entity = LightEntity(obj, light)
 
         if obj.type == 'MESH':
             if (EntityFactory.matchName(obj, "Cube") or EntityFactory.matchName(obj, "Box")):

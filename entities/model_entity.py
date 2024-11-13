@@ -29,14 +29,14 @@ class ModelEntity(BaseEntity):
             model["shapeType"] = self.obj.overte.shape_type
 
         if self.obj.overte.compound_shape_url != '':
-            model["compoundShapeURL"] = self.obj.overte.compound_shape_url
+            model["compoundShapeURL"] = ExportParams.get_url(self.obj.overte.compound_shape_url)
 
         if self.obj.overte.use_original_pivot != False:
             model["useOriginalPivot"] = self.obj.overte.use_original_pivot
 
         if self.obj.overte.animation_url != '':
             animation = {}
-            animation["url"] = self.obj.overte.animation_url
+            animation["url"] = ExportParams.get_url(self.obj.overte.animation_url)
             if self.obj.overte.animation_running != False:
                 animation["running"] = self.obj.overte.animation_running
     
